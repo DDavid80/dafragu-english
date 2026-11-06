@@ -71,18 +71,48 @@ export default function App(){
  useEffect(()=>{try{const local=JSON.parse(localStorage.getItem('df-english-v1')||'{}');eventsRef.current=Array.isArray(local.events)?local.events:[];pendingRef.current=Array.isArray(local.pending)?local.pending:[];setEvents(eventsRef.current);setPending(pendingRef.current);if(typeof local.profile==='string'&&validProfile(local.profile))setProfile(local.profile);setSlow(!!local.slow);if(local.accent==='en-US')setAccent('en-US');if(Array.isArray(local.locked)){setLocked(local.locked);setLockKnown(true)}if(Array.isArray(local.hidden))setHiddenSrv(local.hidden);if(local.summaries&&typeof local.summaries==='object')setSummaries(local.summaries)}catch{}void openInvitation().finally(()=>setReady(true))},[]);
  useEffect(()=>{if(!ready||lockKnown)return;const t=window.setTimeout(()=>setProfileCheckTimedOut(true),30000);return()=>window.clearTimeout(t)},[ready,lockKnown,connectionVersion]);
  useEffect(()=>{if(ready)try{localStorage.setItem('df-english-v1',JSON.stringify({events,pending,profile,slow,accent,locked:lockKnown?locked:undefined,hidden:hiddenSrv,summaries}))}catch{notify('Spazio locale non disponibile. Controlla il salvataggio online.')}},[events,pending,profile,slow,accent,ready,locked,hiddenSrv,summaries,lockKnown]);
- async function synchronize(){if(syncing.current)return;syncing.current=true;setSync('saving');try{
-  if(isSheets()){const drop=pendingRef.current.filter(e=>e.kind==='pin'||e.kind==='hide');if(drop.length){pendingRef.current=pendingRef.current.filter(e=>!drop.includes(e));setPending([...pendingRef.current])}}
-  const skipped=new Set<string>();
-  const sendable=(e:Event)=>!skipped.has(e.profile)&&!(isSheets()&&lockedRef.current.includes(e.profile)&&!unlockedPin(e.profile));
-  let todo=pendingRef.current.filter(sendable);
-  while(todo.length){const first=todo[0].profile;const batch=todo.filter(e=>e.profile===first).slice(0,100);
-   try{await writeEvents(batch);const ids=new Set(batch.map(e=>e.id));pendingRef.current=pendingRef.current.filter(e=>!ids.has(e.id));setPending([...pendingRef.current])}
-   catch(err:any){if(err?.code==='pin'){forgetPin(first);skipped.add(first);setPinTick(t=>t+1)}else if(err?.code==='hidden'){pendingRef.current=pendingRef.current.filter(e=>e.profile!==first);setPending([...pendingRef.current]);setHiddenSrv(h=>[...new Set([...h,first])])}else throw err}
-   todo=pendingRef.current.filter(sendable)}
-  const data=await readEvents() as {events:Event[],locked?:string[],hidden?:string[],summaries?:Record<string,Stats>};eventsRef.current=merge(data.events,eventsRef.current);setEvents([...eventsRef.current]);
-  if(Array.isArray(data.locked)){lockedRef.current=data.locked;setLocked(data.locked);setLockKnown(true)}if(Array.isArray(data.hidden))setHiddenSrv(data.hidden);if(data.summaries)setSummaries(data.summaries);
-  setSync(pendingRef.current.some(e=>!(isSheets()&&lockedRef.current.includes(e.profile)&&!unlockedPin(e.profile)))?'saving':'saved');setSyncError('')}catch(e){setSync('offline');setSyncError(e instanceof Error?e.message:'Collegamento non disponibile.')}finally{syncing.current=false}}
+ async function synchronize(){
+  if(syncing.current)return;
+  syncing.current=true;setSync('saving');
+  try{
+   // Leggi prima la configurazione dei PIN: un salvataggio pendente non deve bloccare il login.
+   const initial=await readEvents() as {events:Event[],locked?:string[],hidden?:string[],summaries?:Record<string,Stats>};
+   if(!Array.isArray(initial.events))throw new Error('Il database non ha restituito i profili. Controlla il deployment di Apps Script.');
+   if(isSheets()&&!Array.isArray(initial.locked))throw new Error('La versione pubblicata di Google Apps Script è precedente al controllo PIN. Ripubblica Code.gs come nuova versione della Web App.');
+   eventsRef.current=merge(initial.events,eventsRef.current);setEvents([...eventsRef.current]);
+   if(Array.isArray(initial.locked)){lockedRef.current=initial.locked;setLocked(initial.locked);setLockKnown(true)}
+   if(Array.isArray(initial.hidden))setHiddenSrv(initial.hidden);
+   if(initial.summaries)setSummaries(initial.summaries);
+   setProfileCheckTimedOut(false);
+   if(isSheets()){
+    const drop=pendingRef.current.filter(e=>e.kind==='pin'||e.kind==='hide');
+    if(drop.length){pendingRef.current=pendingRef.current.filter(e=>!drop.includes(e));setPending([...pendingRef.current])}
+   }
+   const skipped=new Set<string>();
+   const sendable=(e:Event)=>!skipped.has(e.profile)&&!(isSheets()&&lockedRef.current.includes(e.profile)&&!unlockedPin(e.profile));
+   let todo=pendingRef.current.filter(sendable);
+   while(todo.length){
+    const first=todo[0].profile;
+    const batch=todo.filter(e=>e.profile===first).slice(0,100);
+    try{
+     await writeEvents(batch);
+     const ids=new Set(batch.map(e=>e.id));
+     pendingRef.current=pendingRef.current.filter(e=>!ids.has(e.id));
+     setPending([...pendingRef.current]);
+    }catch(err:any){
+     if(err?.code==='pin'){forgetPin(first);skipped.add(first);setPinTick(t=>t+1)}
+     else if(err?.code==='hidden'){pendingRef.current=pendingRef.current.filter(e=>e.profile!==first);setPending([...pendingRef.current]);setHiddenSrv(h=>[...new Set([...h,first])])}
+     else throw err;
+    }
+    todo=pendingRef.current.filter(sendable);
+   }
+   setSync(pendingRef.current.some(e=>!(isSheets()&&lockedRef.current.includes(e.profile)&&!unlockedPin(e.profile)))?'saving':'saved');
+   setSyncError('');
+  }catch(e){
+   setSync('offline');
+   setSyncError(e instanceof Error?e.message:'Collegamento non disponibile.');
+  }finally{syncing.current=false}
+ }
  useEffect(()=>{if(!ready)return;void synchronize();const i=setInterval(synchronize,30000);window.addEventListener('online',synchronize);window.addEventListener('focus',synchronize);return()=>{clearInterval(i);window.removeEventListener('online',synchronize);window.removeEventListener('focus',synchronize)}},[ready]);
  useEffect(()=>{if(!modal)return;const previous=document.activeElement as HTMLElement;const oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';const viewport=window.visualViewport;const resize=()=>document.documentElement.style.setProperty('--visual-height',(viewport?.height||window.innerHeight)+'px');resize();viewport?.addEventListener('resize',resize);const dialog=document.querySelector('[role=dialog]') as HTMLElement;const frame=requestAnimationFrame(()=>{(dialog?.querySelector('button:not(:disabled),input,select') as HTMLElement)?.focus()});function key(e:KeyboardEvent){if(e.key==='Escape'){setModal('');if('speechSynthesis'in window)window.speechSynthesis.cancel()}if(e.key==='Tab'&&dialog){const controls=Array.from(dialog.querySelectorAll('button:not(:disabled),input:not([hidden]),select,audio[controls]')).filter(el=>(el as HTMLElement).offsetParent!==null) as HTMLElement[];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}}document.addEventListener('keydown',key);return()=>{cancelAnimationFrame(frame);viewport?.removeEventListener('resize',resize);document.documentElement.style.removeProperty('--visual-height');document.body.style.overflow=oldOverflow;document.removeEventListener('keydown',key);previous?.focus()}},[modal]);
  function add(kind:string,data:any,p:Profile=profile){const e={id:typeof crypto.randomUUID==='function'?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join(''),profile:p,kind,data,at:new Date().toISOString()};eventsRef.current=merge(eventsRef.current,[e]);pendingRef.current.push(e);setEvents([...eventsRef.current]);setPending([...pendingRef.current]);void synchronize()}
@@ -135,7 +165,7 @@ export default function App(){
  const phraseList=lessons.flatMap(l=>l.phrases.map((p,i)=>({l,p,key:l.id+'-'+i}))).filter(({l,p,key})=>(filter==='Tutte'||filter==='Preferite'&&favorites.has(key)||filter===l.category)&&(!query||normal(p.join(' ')).includes(normal(query))));
  const activeLesson=lessons.find(l=>l.id===speaking)||lessons[0];
  const daylabels=['L','M','M','G','V','S','D'];const week=Array.from({length:7},(_,i)=>{const d=new Date();const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow+i);return {label:daylabels[i],done:days.has(day(d.toISOString())),today:day(d.toISOString())===day(new Date().toISOString())}});
- if(ready&&!unlocked)return <LockScreen key={profile+lockMode} profile={profile} profiles={profiles} mode={lockMode as any} onUnlock={unlockProfile} onCreate={createPin} onSwitch={p=>{setProfile(p);setPinTick(t=>t+1)}} onRetry={()=>{setProfileCheckTimedOut(false);void synchronize()}}/>;
+ if(ready&&!unlocked)return <LockScreen key={profile+lockMode} profile={profile} profiles={profiles} mode={lockMode as any} onUnlock={unlockProfile} onCreate={createPin} onSwitch={p=>{setProfile(p);setPinTick(t=>t+1)}} onRetry={()=>{setProfileCheckTimedOut(false);void synchronize()}} errorDetail={syncError}/>;
  return <div className="app-shell"><aside className="sidebar"><Brand/><div className="side-label">IL VOSTRO SPAZIO</div><nav>{navs.map(([id,label,C])=><button key={id} className={tab===id?'active':''} onClick={()=>go(id)}><C size={20}/>{label}{id==='speak'&&<span className="tiny-tag">LET’S TALK</span>}</button>)}</nav><div className="sidebar-note"><Globe size={24}/><p>Un po’ di inglese.<br/>Un mondo di possibilità.</p><small>Un passo alla volta, insieme.</small></div><button className="sidebar-settings" onClick={()=>setModal('settings')}><Settings size={18}/> Preferenze e backup</button><small className="credit">Created by Del Cielo D.</small></aside>
  <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="desktop-breadcrumb">IL VOSTRO INGLESE, IN VIAGGIO <span>↗</span></div><div className="top-actions"><button className="sync-button" onClick={synchronize} aria-label="Sincronizza i progressi">{sync==='offline'?<CloudOff size={18}/>:<CloudCheck size={18}/>}<span>{sync==='saved'?'Salvato online':sync==='offline'?'Da sincronizzare':'Sincronizzo…'}</span></button><button className={'profile-button '+(profile==='Francesca'?'fra':'')} onClick={()=>setModal('profile')}><span>{profile[0]}</span><b>{profile}</b><ChevronRight size={15}/></button></div></header>
  <main className="content" id="main">{sync==='offline'&&<div className="offline-notice">{pending.length?'Progressi salvati su questo dispositivo, in attesa di sincronizzazione.':'Collegamento online non disponibile. Mostro i progressi già presenti sul dispositivo.'} {syncError&&<span>{syncError} </span>}<button onClick={synchronize}>Riprova</button><button onClick={()=>setModal('settings')}>Collegamento dati</button></div>}
