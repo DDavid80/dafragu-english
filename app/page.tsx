@@ -147,6 +147,27 @@ export default function App(){
   rememberPin(profile,pinB);setPinA('');setPinB('');setPinC('');close();notify('PIN cambiato.')}catch(e){setFormError(e instanceof Error?e.message:'PIN non cambiato.')}}
  function sendChallenge(to:string){add('challenge',{cid:uid(),to});notify('Sfida inviata a '+to+'.')}
  function replyChallenge(c:{cid:string},accept:boolean){const t=day(new Date().toISOString());add('challenge-reply',accept?{cid:c.cid,accept:true,start:t,end:addDays(t,6)}:{cid:c.cid,accept:false});notify(accept?'Sfida accettata. Si parte oggi!':'Sfida chiusa.')}
+ async function registerFromLogin(name:string,pin:string):Promise<string>{
+  if(!isSheets())return 'Apri prima il link privato di invito ricevuto da chi gestisce DaFragu English.';
+  if(!validProfile(name)||name!==name.trim())return 'Inserisci un nome valido (massimo 40 caratteri).';
+  if(!/^[0-9]{4}$/.test(pin))return 'Il PIN deve avere 4 cifre.';
+  if(profiles.some(p=>p.toLocaleLowerCase()===name.toLocaleLowerCase()))return 'Questo nome è già presente. Seleziona il profilo e inserisci il suo PIN.';
+  if(profiles.length>=50)return 'Sono già presenti 50 profili.';
+  const entry:Event={id:uid(),profile:name,kind:'profile',data:{name},at:new Date().toISOString()};
+  try{
+   // Il nome deve risultare sul database prima di assegnare il PIN.
+   await writeEvents([entry]);
+   await sheetsSetPin(name,pin);
+   eventsRef.current=merge(eventsRef.current,[entry]);
+   setEvents([...eventsRef.current]);
+   lockedRef.current=[...new Set([...lockedRef.current,name])];
+   setLocked([...lockedRef.current]);setLockKnown(true);
+   rememberPin(name,pin);forgetPin(profile);setProfile(name);setPinTick(t=>t+1);
+   setSync('saved');setSyncError('');
+   void synchronize();
+   return '';
+  }catch(e){void synchronize();return e instanceof Error?e.message:'Non riesco a creare il profilo. Riprova.'}
+ }
  function createProfile(){const name=newProfile.trim().replace(/\s+/g,' ');if(!validProfile(name)){setProfileError('Usa un nome da 1 a 40 caratteri, senza simboli speciali.');return;}if(profiles.some(p=>p.toLocaleLowerCase()===name.toLocaleLowerCase())){setProfileError('Questo profilo esiste già. Sceglilo nell’elenco.');return;}if(profiles.length>=50){setProfileError('Sono già presenti 50 profili.');return;}add('profile',{name},name);forgetPin(profile);setProfile(name);setNewProfile('');setProfileError('');close();notify('Profilo creato. Ora si allena '+name+'.')}
  const mine=events.filter(e=>e.profile===profile),completions=mine.filter(e=>e.kind==='complete'),done=new Set(completions.map(e=>e.data.lesson)),assessment=mine.filter(e=>e.kind==='assessment').at(-1),goal=mine.filter(e=>e.kind==='goal').at(-1)?.data.minutes||10;
  const favorites=new Set<string>();for(const e of mine.filter(e=>e.kind==='favorite')){if(e.data.value)favorites.add(e.data.key);else favorites.delete(e.data.key)}
@@ -165,7 +186,7 @@ export default function App(){
  const phraseList=lessons.flatMap(l=>l.phrases.map((p,i)=>({l,p,key:l.id+'-'+i}))).filter(({l,p,key})=>(filter==='Tutte'||filter==='Preferite'&&favorites.has(key)||filter===l.category)&&(!query||normal(p.join(' ')).includes(normal(query))));
  const activeLesson=lessons.find(l=>l.id===speaking)||lessons[0];
  const daylabels=['L','M','M','G','V','S','D'];const week=Array.from({length:7},(_,i)=>{const d=new Date();const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow+i);return {label:daylabels[i],done:days.has(day(d.toISOString())),today:day(d.toISOString())===day(new Date().toISOString())}});
- if(ready&&!unlocked)return <LockScreen key={profile+lockMode} profile={profile} profiles={profiles} mode={lockMode as any} onUnlock={unlockProfile} onCreate={createPin} onSwitch={p=>{setProfile(p);setPinTick(t=>t+1)}} onRetry={()=>{setProfileCheckTimedOut(false);void synchronize()}} errorDetail={syncError} connectionPanel={<ConnectionSettings key={'recovery-'+connectionVersion} onConnected={()=>{setProfileCheckTimedOut(false);setConnectionVersion(v=>v+1)}} onDisconnected={()=>{setConnectionVersion(v=>v+1)}}/>}/>;
+ if(ready&&!unlocked)return <LockScreen key={profile+lockMode} profile={profile} profiles={profiles} mode={lockMode as any} onUnlock={unlockProfile} onCreate={createPin} onSwitch={p=>{forgetPin(profile);setProfile(p);setPinTick(t=>t+1)}} onRegister={registerFromLogin} onRetry={()=>{setProfileCheckTimedOut(false);void synchronize()}} errorDetail={syncError} connectionPanel={<ConnectionSettings key={'recovery-'+connectionVersion} onConnected={()=>{setProfileCheckTimedOut(false);setConnectionVersion(v=>v+1)}} onDisconnected={()=>{setConnectionVersion(v=>v+1)}}/>}/>;
  return <div className="app-shell"><aside className="sidebar"><Brand/><div className="side-label">IL VOSTRO SPAZIO</div><nav>{navs.map(([id,label,C])=><button key={id} className={tab===id?'active':''} onClick={()=>go(id)}><C size={20}/>{label}{id==='speak'&&<span className="tiny-tag">LET’S TALK</span>}</button>)}</nav><div className="sidebar-note"><Globe size={24}/><p>Un po’ di inglese.<br/>Un mondo di possibilità.</p><small>Un passo alla volta, insieme.</small></div><button className="sidebar-settings" onClick={()=>setModal('settings')}><Settings size={18}/> Preferenze e backup</button><small className="credit">Created by Del Cielo D.</small></aside>
  <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="desktop-breadcrumb">IL VOSTRO INGLESE, IN VIAGGIO <span>↗</span></div><div className="top-actions"><button className="sync-button" onClick={synchronize} aria-label="Sincronizza i progressi">{sync==='offline'?<CloudOff size={18}/>:<CloudCheck size={18}/>}<span>{sync==='saved'?'Salvato online':sync==='offline'?'Da sincronizzare':'Sincronizzo…'}</span></button><button className={'profile-button '+(profile==='Francesca'?'fra':'')} onClick={()=>setModal('profile')}><span>{profile[0]}</span><b>{profile}</b><ChevronRight size={15}/></button></div></header>
  <main className="content" id="main">{sync==='offline'&&<div className="offline-notice">{pending.length?'Progressi salvati su questo dispositivo, in attesa di sincronizzazione.':'Collegamento online non disponibile. Mostro i progressi già presenti sul dispositivo.'} {syncError&&<span>{syncError} </span>}<button onClick={synchronize}>Riprova</button><button onClick={()=>setModal('settings')}>Collegamento dati</button></div>}
