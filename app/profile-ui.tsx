@@ -7,7 +7,7 @@ export function PinInput({id,label,value,onChange,autoFocus}:{id:string,label:st
  return <div className="pin-field"><label className="field-label" htmlFor={id}>{label}</label><input id={id} className="answer-input pin-input" type="password" inputMode="numeric" pattern="[0-9]*" autoComplete="off" maxLength={4} autoFocus={autoFocus} value={value} onChange={e=>onChange(e.target.value.replace(/\D/g,'').slice(0,4))}/></div>;
 }
 
-export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onRetry}:{profile:string,profiles:string[],mode:'wait'|'offline'|'enter'|'create',onUnlock:(pin:string)=>Promise<string>,onCreate:(pin:string)=>Promise<string>,onSwitch:(p:string)=>void,onRetry:()=>void}){
+export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onRetry}:{profile:string,profiles:string[],mode:'wait'|'offline'|'old'|'enter'|'create',onUnlock:(pin:string)=>Promise<string>,onCreate:(pin:string)=>Promise<string>,onSwitch:(p:string)=>void,onRetry:()=>void}){
  const [pin,setPin]=useState(''),[again,setAgain]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  async function submit(e:React.FormEvent){
   e.preventDefault();setError('');
@@ -21,6 +21,7 @@ export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onR
   <span className="eyebrow">DAFRAGU ENGLISH</span>
   {mode==='wait'&&<><h1>Un momento…</h1><p>Controllo i profili.</p></>}
   {mode==='offline'&&<><h1>Serve la connessione</h1><p>Non riesco a controllare il PIN di {profile}. Collegati a internet e riprova.</p><button className="primary" onClick={onRetry}>Riprova<ArrowRight size={18}/></button></>}
+  {mode==='old'&&<><h1>Database da aggiornare</h1><p>Il foglio Google usa ancora la versione vecchia di Code.gs, che non gestisce i PIN. Copia il nuovo Code.gs nel progetto Apps Script e ripubblicalo: Esegui il deployment → Gestisci i deployment → Modifica → Nuova versione.</p><button className="primary" onClick={onRetry}>Ho aggiornato, riprova<ArrowRight size={18}/></button></>}
   {(mode==='enter'||mode==='create')&&<form onSubmit={submit}>
    <h1>{mode==='enter'?`Ciao, ${profile}.`:`Scegli il PIN di ${profile}`}</h1>
    <p>{mode==='enter'?'Inserisci il tuo PIN a 4 cifre.':'Scegli 4 cifre che ricordi. Servono ogni volta che apri il profilo, così nessun altro ci entra.'}</p>
