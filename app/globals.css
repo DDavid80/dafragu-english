@@ -91,3 +91,16 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
 .notification-settings>input[type=time]{width:100%;max-width:220px;min-height:44px}
 .notification-settings .divider{margin:12px 0}
 @media(max-width:650px){.notification-inbox{padding:17px}.notification-heading{align-items:flex-start;flex-wrap:wrap}.notification-entry{gap:9px;padding:12px}.notification-entry .text-button{font-size:12px}.notify-bell{width:39px;flex-basis:39px}}
+
+/* Intestazione mobile: due righe per non nascondere la campanella su iPhone */
+@media(max-width:650px){
+ .topbar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:14px 16px 12px;min-height:0;height:auto;align-items:stretch}
+ .mobile-brand{display:block;min-width:0}
+ .top-actions{width:100%;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:9px}
+ .top-settings-button,.notify-bell{flex:0 0 42px;width:42px;height:42px;min-width:42px}
+ .notify-bell{order:0}
+ .top-actions>.top-settings-button:not(.notify-bell){order:1}
+ .sync-button{order:2;flex:0 0 42px;width:42px;justify-content:center}
+ .profile-button{order:3;margin-left:auto;min-width:0}
+ .profile-button b{max-width:100px}
+}
