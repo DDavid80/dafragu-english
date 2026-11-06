@@ -1,7 +1,7 @@
 import { getDb } from '../../../db';
 import { events } from '../../../db/schema';
 export const dynamic = 'force-dynamic';
-const kinds = ['answer','complete','assessment','favorite','practice','goal','profile'];
+const kinds = ['answer','complete','assessment','favorite','practice','goal','profile','notification-read','notification-settings'];
 export async function GET() {
  try { const rows = await getDb().select().from(events).all(); return Response.json({events:rows.map(r=>({...r,data:JSON.parse(r.data)}))},{headers:{'Cache-Control':'no-store'}}); }
  catch { return Response.json({error:'Salvataggio online temporaneamente non disponibile.'},{status:503}); }

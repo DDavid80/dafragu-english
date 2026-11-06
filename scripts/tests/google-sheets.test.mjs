@@ -22,3 +22,6 @@ assert.equal(request({action:'append',token:'test-code',events:[event('test-even
 const result=request({action:'read',token:'test-code'});
 assert.equal(result.ok,true);assert.equal(new Set(result.events.filter(e=>e.kind==='profile').map(e=>e.profile)).size,3);assert.equal(result.events.filter(e=>e.profile==='Francesca'&&e.kind==='answer').length,1);
 console.log('PASS: auth, validation, retry deduplication, new profiles, case collisions, profile separation, full readback.');
+
+assert.equal(request({action:'append',token:'test-code',events:[event('test-notify-0001','Davide','notification-read',{key:'study-2026-11-06'}),event('test-notify-0002','Davide','notification-settings',{enabled:false})]}).ok,true);
+console.log('PASS: notification read/settings events accepted by Google Sheets backend.');

@@ -1,6 +1,6 @@
 /** DaFragu English — database Google Sheets. Eseguire setup() una volta. */
 const DATABASE_ID = '120y5xnqs3F258GdUba-mTcsTF18yQd2466mCppg6EN8';
-const KINDS = ['answer','complete','assessment','favorite','practice','goal','profile'];
+const KINDS = ['answer','complete','assessment','favorite','practice','goal','profile','notification-read','notification-settings'];
 const HEADERS = {Utenti:['Profilo','Nome','Attivo','Creato il'],Eventi:['ID','Profilo','Tipo','Dati JSON','Data e ora'],Config:['Chiave','Valore']};
 function setup() {
  const properties=PropertiesService.getScriptProperties();

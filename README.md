@@ -1,6 +1,6 @@
 # DaFragu English
 
-Piattaforma per allenare l’inglese da viaggio, progettata per iPhone. Tema scuro, 12 lezioni, 60 espressioni, ascolto, registrazione locale, ripasso degli errori e profili multipli.
+Piattaforma per allenare l’inglese nella vita quotidiana, nel lavoro, negli interessi e in viaggio, progettata per iPhone. Tema scuro, 24 lezioni, 120 espressioni, ascolto, registrazione locale, ripasso degli errori e profili multipli.
 
 ## Versioni
 
@@ -32,7 +32,7 @@ Non pubblicare il codice dello spazio nel repository. Il foglio resta privato: n
 
 ## GitHub Pages
 
-Il workflow `.github/workflows/pages.yml` costruisce la versione statica da `github/main.tsx` e dalla stessa app in `app/`. In **Settings → Pages**, seleziona **GitHub Actions** come origine. La disponibilità di Pages per un repository privato dipende dal piano GitHub. Il repository è inizialmente privato.
+Il workflow `.github/workflows/pages.yml` costruisce la versione statica da `github/main.tsx` e dalla stessa app in `app/`. In **Settings → Pages**, seleziona **GitHub Actions** come origine. Il repository è pubblico e GitHub Pages è attivo.
 
 Per una compilazione locale:
 
@@ -51,3 +51,11 @@ pnpm exec tsc --noEmit
 ```
 
 Le registrazioni vocali non vengono inviate al database e sono disponibili soltanto durante la schermata corrente. Non viene assegnato un voto automatico alla pronuncia.
+
+## Notifiche
+
+La campanella in alto apre il centro notifiche: un messaggio al giorno per ogni profilo, con una lezione suggerita. La lettura e la preferenza di attivazione si sincronizzano con i progressi. Il messaggio all’apertura compare al massimo una volta al giorno per profilo e dispositivo. I promemoria a piattaforma chiusa sono gestiti separatamente dalle attività ChatGPT: il sito non promette notifiche push in background.
+
+## Percorso trasversale
+
+24 lezioni, 120 espressioni e 8 missioni in coppia. Le sezioni sono Fondamenta, Vita quotidiana, Lavoro, Tecnologia, Interessi, Conversazione, In viaggio e Imprevisti. Gli ID delle prime 12 lezioni restano invariati, per conservare il collegamento con i progressi già salvati.
