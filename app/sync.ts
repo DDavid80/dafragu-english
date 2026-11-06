@@ -1,6 +1,7 @@
 type Connection={url:string,code:string};
 const KEY='df-english-sheets-v1';
-export function getConnection():Connection{if(typeof window==='undefined')return {url:'',code:''};try{return JSON.parse(localStorage.getItem(KEY)||'{"url":"","code":""}')}catch{return {url:'',code:''}}}
+const OLD_ENDPOINT='https://script.google.com/macros/s/AKfycbzAJLUfaqi0hoUOUHM-8aQdIRhQo3VuTn51Z5T2iSNEu_JJw0fMWjX5S0CjVSU8TfobWg/exec',NEW_ENDPOINT='https://script.google.com/macros/s/AKfycbzvjaP0FrQafGeerVq-4SYeCa0758ubhmd5diRvFsDmXUMleOtAZjMKl_NwdAyvIKmnJg/exec';
+export function getConnection():Connection{if(typeof window==='undefined')return {url:'',code:''};try{const c=JSON.parse(localStorage.getItem(KEY)||'{"url":"","code":""}');if(c.url===OLD_ENDPOINT){c.url=NEW_ENDPOINT;try{localStorage.setItem(KEY,JSON.stringify(c))}catch{}}return c}catch{return {url:'',code:''}}}
 function isStatic(){return typeof document!=='undefined'&&document.querySelector('meta[name="df-host"]')?.getAttribute('content')==='github'}
 export function backendName(){return getConnection().url?'Google Sheets':isStatic()?'Solo questo dispositivo · Google Sheets da collegare':'Database Sites'}
 export function disconnectSheets(){localStorage.removeItem(KEY)}
