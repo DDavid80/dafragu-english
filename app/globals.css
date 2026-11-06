@@ -104,3 +104,13 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
  .profile-button{order:3;margin-left:auto;min-width:0}
  .profile-button b{max-width:100px}
 }
+
+/* Scorciatoia notifiche mobile: visibile subito sotto l'intestazione, senza sovrapposizioni */
+.mobile-notification-shortcut{display:none}
+@media(max-width:650px){
+ .mobile-notification-shortcut{display:block;margin:-14px 0 20px}
+ .notification-shortcut-button{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 15px;background:#253b32;color:#eff7ed;border:1px solid #58755f;border-radius:14px;font-size:14px;font-weight:700;box-shadow:0 2px 10px #0002}
+ .notification-shortcut-button>span:nth-child(2){flex:1;text-align:left}
+ .notification-shortcut-icon{display:grid;place-items:center;position:relative;width:30px;height:30px;color:#c9e9b9}
+ .notification-shortcut-button .notify-count{top:-7px;right:-9px}
+}
