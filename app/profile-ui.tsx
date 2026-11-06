@@ -7,8 +7,9 @@ export function PinInput({id,label,value,onChange,autoFocus}:{id:string,label:st
  return <div className="pin-field"><label className="field-label" htmlFor={id}>{label}</label><input id={id} className="answer-input pin-input" type="password" inputMode="numeric" pattern="[0-9]*" autoComplete="off" maxLength={4} autoFocus={autoFocus} value={value} onChange={e=>onChange(e.target.value.replace(/\D/g,'').slice(0,4))}/></div>;
 }
 
-export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onRetry,errorDetail,connectionPanel}:{profile:string,profiles:string[],mode:'wait'|'offline'|'enter'|'create',onUnlock:(pin:string)=>Promise<string>,onCreate:(pin:string)=>Promise<string>,onSwitch:(p:string)=>void,onRetry:()=>void,errorDetail?:string,connectionPanel?:React.ReactNode}){
+export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onRetry,onRegister,errorDetail,connectionPanel}:{profile:string,profiles:string[],mode:'wait'|'offline'|'enter'|'create',onUnlock:(pin:string)=>Promise<string>,onCreate:(pin:string)=>Promise<string>,onSwitch:(p:string)=>void,onRetry:()=>void,onRegister:(name:string,pin:string)=>Promise<string>,errorDetail?:string,connectionPanel?:React.ReactNode}){
  const [pin,setPin]=useState(''),[again,setAgain]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const [registering,setRegistering]=useState(false),[regName,setRegName]=useState(''),[regPin,setRegPin]=useState(''),[regAgain,setRegAgain]=useState('');
  async function submit(e:React.FormEvent){
   e.preventDefault();setError('');
   if(pin.length!==4){setError('Il PIN ha 4 cifre.');return}
@@ -16,12 +17,13 @@ export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onR
   setBusy(true);const msg=await (mode==='create'?onCreate(pin):onUnlock(pin));setBusy(false);
   if(msg){setError(msg);setPin('');setAgain('')}
  }
+ async function register(e:React.FormEvent){e.preventDefault();setError('');if(regPin.length!==4||regPin!==regAgain){setError('Controlla il PIN: devono essere quattro cifre uguali.');return}setBusy(true);try{const msg=await onRegister(regName.trim(),regPin);if(msg)setError(msg)}finally{setBusy(false)}}
  return <div className="lock-screen"><section className="lock-card" role="dialog" aria-modal="true" aria-label="Accesso al profilo">
   <span className="lock-icon"><Lock size={28}/></span>
   <span className="eyebrow">DAFRAGU ENGLISH</span>
   {mode==='wait'&&<><h1>Un momento…</h1><p>Controllo i profili.</p></>}
   {mode==='offline'&&<><h1>Serve la connessione</h1><p>Non riesco a controllare il PIN di {profile}.</p>{errorDetail&&<p className="error-text small" role="alert">{errorDetail}</p>}<button className="primary" onClick={onRetry}>Riprova<ArrowRight size={18}/></button><div className="divider"/><details><summary className="small" style={{cursor:'pointer',padding:'12px 0'}}>Ripristina collegamento Google Sheets</summary>{connectionPanel}</details></>}
-  {(mode==='enter'||mode==='create')&&<form onSubmit={submit}>
+  {(mode==='enter'||mode==='create')&&!registering&&<form onSubmit={submit}>
    <h1>{mode==='enter'?`Ciao, ${profile}.`:`Scegli il PIN di ${profile}`}</h1>
    <p>{mode==='enter'?'Inserisci il tuo PIN a 4 cifre.':'Scegli 4 cifre che ricordi. Servono ogni volta che apri il profilo, così nessun altro ci entra.'}</p>
    <PinInput id="pin" label="PIN" value={pin} onChange={setPin} autoFocus/>
@@ -30,6 +32,9 @@ export function LockScreen({profile,profiles,mode,onUnlock,onCreate,onSwitch,onR
    <button className="primary" type="submit" disabled={busy||pin.length!==4||(mode==='create'&&again.length!==4)}>{mode==='enter'?'Entra':'Salva il PIN'}<ArrowRight size={18}/></button>
    {mode==='enter'&&<p className="small muted">PIN dimenticato? Chi gestisce il foglio Google può azzerarlo dalla colonna PinHash.</p>}
   </form>}
+  {(mode==='enter'||mode==='create')&&<div className="lock-register">
+   {registering?<form onSubmit={register}><h2>Nuovo profilo</h2><p className="small muted">Inserisci il nome e scegli il tuo PIN a 4 cifre.</p><label className="field-label" htmlFor="register-name">Nome</label><input id="register-name" className="answer-input" autoComplete="name" maxLength={40} value={regName} onChange={e=>setRegName(e.target.value)}/><PinInput id="register-pin" label="PIN personale" value={regPin} onChange={setRegPin}/><PinInput id="register-pin-again" label="Ripeti il PIN" value={regAgain} onChange={setRegAgain}/>{error&&<p className="error-text small" role="alert">{error}</p>}<button className="primary" type="submit" disabled={busy||!regName.trim()||regPin.length!==4||regAgain.length!==4}>{busy?'Creo il profilo…':'Crea e accedi'}<ArrowRight size={18}/></button><button className="text-button" type="button" onClick={()=>{setRegistering(false);setError('')}}>Torna ai profili</button></form>:<button className="secondary" type="button" onClick={()=>{setRegistering(true);setError('')}}><Users size={17}/> Crea un nuovo profilo</button>}
+  </div>}
   {profiles.length>1&&<div className="lock-switch"><span className="small muted">Non sei {profile}?</span><div className="profile-switch">{profiles.filter(p=>p!==profile).map(p=><button key={p} onClick={()=>onSwitch(p)}>{p[0]} · {p}</button>)}</div></div>}
  </section></div>;
 }
