@@ -36,7 +36,7 @@ function VoicePractice({prompt,model,accent,slow,onPractice}:{prompt:string,mode
  }
  return <div className="voice-practice"><span className="eyebrow">ORA TOCCA A TE</span><h2>{prompt}</h2><p>Rispondi in inglese. Parti con una frase breve, poi aggiungi un dettaglio.</p><button aria-label={recording?'Ferma la registrazione':'Registra la tua risposta'} className={'record '+(recording?'recording':'')} onClick={record} disabled={waiting}>{recording?<Square size={26}/>:<Mic size={28}/>}</button><div className="record-label">{waiting?'Attendo il microfono…':recording?`Sto registrando · ${elapsed}s / 60s`:'Tocca per registrare'}</div>{error&&<p role="status" className="error-text small">{error}</p>}{url&&<div className="recorded"><b>La tua risposta</b><audio controls src={url}/><p className="small">Riascolta: il messaggio è chiaro? Hai completato la richiesta?</p></div>}<button className="text-button" onClick={()=>setShow(!show)}>{show?'Nascondi':'Mostra'} una possibile risposta <ChevronRight size={16}/></button>{show&&<div className="model"><p lang="en">{model}</p><AudioButton text={model} slow={slow} accent={accent} label="Ascolta il modello"/><small>È un esempio: puoi esprimerti anche in altri modi.</small></div>}<p className="small muted">La registrazione resta in questa schermata e non viene inviata online. Nessun voto automatico alla pronuncia.</p></div>
 }
-const sharedEndpoint = 'https://script.google.com/macros/s/AKfycbzAJLUfaqi0hoUOUHM-8aQdIRhQo3VuTn51Z5T2iSNEu_JJw0fMWjX5S0CjVSU8TfobWg/exec';
+const sharedEndpoint = 'https://script.google.com/macros/s/AKfycbzvjaP0FrQafGeerVq-4SYeCa0758ubhmd5diRvFsDmXUMleOtAZjMKl_NwdAyvIKmnJg/exec';
 
 export default function App(){
  async function invitePerson(){
