@@ -69,3 +69,14 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
 .settings-page .divider{margin:24px 0}
 .settings-page .button-row{flex-wrap:wrap}
 @media(max-width:650px){.top-actions{gap:8px}.top-settings-button{width:40px;height:40px;flex-basis:40px}.settings-page{padding:20px 16px;margin-bottom:20px}.settings-page .button-row>button{min-height:44px}}
+
+/* iPhone installato nella schermata Home: non disegnare la testata sotto la barra di stato translucida di iOS. */
+@media (max-width:650px) and (display-mode:standalone){
+ .topbar{padding-top:calc(16px + env(safe-area-inset-top, 0px));min-height:calc(83px + env(safe-area-inset-top, 0px));background:#131c26;position:relative;isolation:isolate}
+ .topbar::before{content:'';position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:#131c26;pointer-events:none;z-index:-1}
+}
+@media (max-width:650px) and (-webkit-touch-callout:none){
+ @supports (padding-top:env(safe-area-inset-top)){
+  .topbar{padding-top:calc(16px + env(safe-area-inset-top));min-height:calc(83px + env(safe-area-inset-top))}
+ }
+}
