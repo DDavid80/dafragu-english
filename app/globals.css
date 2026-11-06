@@ -34,3 +34,26 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
 .error-text{color:#ecb197!important}.offline-notice{background:#382f24;border-color:#65553c;color:#dfc39d}.toast{background:#294b3b;color:#e6eee6;border-color:#63856c}
 @media(max-width:650px){.bottom-nav{background:#141f2af5;border-color:#33424d;box-shadow:0 -6px 24px #0003}.bottom-nav>button{color:#a3b3bb}.bottom-nav>button.active{background:#293f35;color:#d3e2ce}.modal-overlay{background:#141e29}.modal-footer{background:#141e29}}
 .profile-switch{flex-wrap:wrap}.profile-switch button{display:inline-flex;align-items:center;gap:7px;max-width:100%;overflow-wrap:anywhere}.profile-options button b{overflow-wrap:anywhere;min-width:0}.profile-button b{max-width:140px;overflow:hidden;text-overflow:ellipsis}.add-profile{border-top:1px solid var(--line);padding-top:5px;margin-bottom:25px}.add-profile .answer-input{margin-top:0}.connection-settings h3{margin:0 0 15px}.connection-settings .answer-input{font-size:16px;margin-top:0}.connection-settings>p{margin:15px 0}.settings .connection-settings p{font-size:12px}.profile-button>span{text-transform:uppercase}
+/* Profili con PIN, confronto e sfide */
+.lock-screen{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:#101720;overflow:auto}
+.lock-card{width:min(420px,100%);background:#19232f;border:1px solid #2d3b46;border-radius:24px;padding:28px 24px;display:flex;flex-direction:column;gap:12px;text-align:left}
+.lock-card h1{font-size:1.6rem;margin:0}.lock-card p{margin:0;color:var(--muted)}.lock-card form{display:flex;flex-direction:column;gap:12px}
+.lock-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:#23382e;color:#b6cc94}
+.pin-input{letter-spacing:.6em;font-size:1.4rem;text-align:center;max-width:100%}
+.pin-field{display:flex;flex-direction:column;gap:6px}
+.lock-switch{border-top:1px solid #2d3b46;padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.danger{background:#3a2424!important;border-color:#6b3b3b!important;color:#f0b9b0!important}
+.compare-scroll{overflow-x:auto}.compare-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.compare-table th,.compare-table td{padding:10px 8px;text-align:right;border-bottom:1px solid #2d3b46;white-space:nowrap}
+.compare-table th:first-child{text-align:left}.compare-table thead th{color:var(--muted);font-weight:600;font-size:.78rem}
+.compare-table tr.me{background:#23382e55}.compare-table small{color:var(--muted)}
+.challenges h3{display:flex;align-items:center;gap:8px}.challenge-form{display:flex;flex-direction:column;gap:10px;margin:10px 0 16px}
+.challenge-list{display:flex;flex-direction:column;gap:12px}
+.challenge{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;background:#141f2a;border:1px solid #2d3b46;border-radius:16px;padding:14px}
+.challenge.incoming{border-color:#8fc5a6}.challenge p{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+.challenge .button-row,.challenge>button,.challenge .score,.challenge .result{grid-column:1/-1}
+.challenge .score{display:flex;align-items:baseline;justify-content:center;gap:14px;font-size:1.8rem;font-weight:700}
+.challenge .score .lead{color:#b6cc94}.challenge .result{text-align:center;font-weight:600}
+.pair-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.pair-pick label{display:flex;flex-direction:column;gap:6px}
+@media(max-width:430px){.pair-pick{grid-template-columns:1fr}}
+.home-challenge{margin-top:16px}

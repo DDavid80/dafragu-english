@@ -7,7 +7,20 @@ Piattaforma per allenare l’inglese da viaggio, progettata per iPhone. Tema scu
 - **Sites**: app completa con database Sites. Continua a funzionare mentre si configura Google Sheets.
 - **GitHub Pages**: stessa interfaccia e contenuti, con database Google Sheets tramite Apps Script. Il codice di accesso si inserisce sul dispositivo e non è nel repository.
 
-I profili sono percorsi nello stesso spazio condiviso. Ogni profilo ha progressi, errori e preferiti propri. Non sono account privati: chi ha accesso allo spazio può selezionare gli altri profili.
+I profili sono percorsi nello stesso spazio condiviso. Ogni profilo ha progressi, errori e preferiti propri.
+
+## PIN, eliminazione, confronto e sfide
+
+- **PIN a 4 cifre**: ogni profilo si apre con il proprio PIN. Al primo accesso si sceglie il PIN. Cambiando profilo, quello precedente si richiude. Il PIN si cambia da **Cambia il PIN** nella scelta profilo.
+- **Controllo sul database** (Google Sheets): il PIN è salvato come hash nella colonna `PinHash` del foglio `Utenti`. Senza PIN il database non consegna i dettagli del profilo e non accetta nuovi dati per quel profilo. Dopo 5 PIN sbagliati il profilo si blocca 10 minuti. Il codice dello spazio resta necessario per collegarsi.
+- **PIN dimenticato**: nel foglio `Utenti` svuota la cella `PinHash` del profilo. Al prossimo accesso si sceglie un nuovo PIN.
+- **Limite**: chi ha il codice dello spazio vede comunque i numeri di confronto di tutti i profili (lezioni, precisione, giorni, serie, risposte corrette per giorno). Non vede le singole risposte, gli errori e i preferiti di un profilo con PIN. Con Database Sites e senza Google Sheets il PIN è solo un blocco nell'app.
+- **Elimina il profilo**: serve il PIN. Il profilo sparisce dall'app e dal database la considera inattivo (`Attivo` = FALSE in `Utenti`). I dati restano nel foglio. Per recuperarlo rimetti `Attivo` a TRUE.
+- **Confronto**: la scheda Progressi mostra tutti i profili affiancati.
+- **Sfide**: dalla scheda Progressi si invia una sfida a un altro profilo. Dura 7 giorni dal momento in cui l'altro accetta. Vince chi dà più risposte corrette. L'altro accetta o rifiuta dalla Home o dai Progressi.
+- **In coppia**: nella missione di coppia si scelgono i due profili.
+
+Dopo l'aggiornamento di `Code.gs` va ripubblicato l'Apps Script: **Esegui il deployment → Gestisci i deployment → Modifica → Nuova versione**. L'indirizzo /exec non cambia.
 
 ## Aggiungere persone
 
