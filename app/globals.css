@@ -57,3 +57,15 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
 .pair-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.pair-pick label{display:flex;flex-direction:column;gap:6px}
 @media(max-width:430px){.pair-pick{grid-template-columns:1fr}}
 .home-challenge{margin-top:16px}
+
+/* Preferenze dedicate, sempre raggiungibili dall'intestazione */
+.top-settings-button{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;color:#c0d2c1;background:#1b2a30}
+.top-settings-button[aria-current="page"]{background:#284438;border-color:#54705d;color:#e2f0df}
+.top-settings-button:hover{background:#2a4038}
+.sidebar-settings.active{color:#d3e2ce;background:#23382e;border-radius:10px}
+.settings-page{max-width:760px;margin:0 auto 20px;padding:26px 28px}
+.settings-page>.field-label{display:block;margin-top:18px;margin-bottom:7px}
+.settings-page>select{width:100%;min-height:46px}
+.settings-page .divider{margin:24px 0}
+.settings-page .button-row{flex-wrap:wrap}
+@media(max-width:650px){.top-actions{gap:8px}.top-settings-button{width:40px;height:40px;flex-basis:40px}.settings-page{padding:20px 16px;margin-bottom:20px}.settings-page .button-row>button{min-height:44px}}
