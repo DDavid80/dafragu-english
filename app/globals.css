@@ -71,3 +71,23 @@ select,.answer-input,.search-field{background:#141f2a;border-color:#3a4a56;color
 @media(max-width:650px){.top-actions{gap:8px}.top-settings-button{width:40px;height:40px;flex-basis:40px}.settings-page{padding:20px 16px;margin-bottom:20px}.settings-page .button-row>button{min-height:44px}}
 /* iOS: testata opaca; barra di stato gestita dal sistema, senza offset artificiali. */
 @media(max-width:650px){.topbar{background:#131c26;backdrop-filter:none;-webkit-backdrop-filter:none;filter:none}}
+
+/* Centro notifiche DaFragu English */
+.notify-bell{position:relative}
+.notify-count{position:absolute;top:-5px;right:-5px;display:grid;place-items:center;min-width:17px;height:17px;padding:0 3px;border-radius:50%;background:#b6cc94;color:#15231d;font-size:10px;font-weight:800}
+.notification-inbox{max-width:760px;margin:0 auto 20px;display:grid;gap:12px}
+.notification-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.notification-heading h2,.notification-settings h3{display:flex;align-items:center;gap:9px}
+.notification-heading .secondary{white-space:nowrap;min-height:42px}
+.notification-entry{display:flex;align-items:flex-start;gap:12px;border:1px solid #385344;background:#20362f;padding:14px;border-radius:14px}
+.notification-entry.read{background:#17242e;border-color:#2d3b46}
+.notification-entry>div{flex:1;min-width:0}
+.notification-entry p{font-size:13px;margin-top:5px}
+.notification-entry .text-button{min-height:40px;white-space:nowrap}
+.notification-kind{color:#b6cc94;padding-top:3px}
+.notification-settings{display:grid;gap:14px}
+.notification-settings>.toggle-row{margin:2px 0}
+.notification-settings>.field-label{margin-bottom:-9px}
+.notification-settings>input[type=time]{width:100%;max-width:220px;min-height:44px}
+.notification-settings .divider{margin:12px 0}
+@media(max-width:650px){.notification-inbox{padding:17px}.notification-heading{align-items:flex-start;flex-wrap:wrap}.notification-entry{gap:9px;padding:12px}.notification-entry .text-button{font-size:12px}.notify-bell{width:39px;flex-basis:39px}}
