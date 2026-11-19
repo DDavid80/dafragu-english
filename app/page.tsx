@@ -1,6 +1,6 @@
 'use client';
 import {useState,useEffect,useRef,useMemo,useContext,createContext} from 'react';
-import {ArrowRight,ArrowLeft,Check,ChevronRight,X,Volume2,Mic,Square,Play,RotateCcw,BookOpen,House,MessageCircle,ChartNoAxesCombined,Plane,MapPin,BedDouble,Utensils,TrainFront,ShoppingBag,Sun,Heart,Globe,Sparkles,Bookmark,Headphones,Clock,Flame,CloudCheck,CloudOff,Download,Upload,Settings,Users,CheckCircle2,Search,SlidersHorizontal,Target,HelpCircle,Lock,Trash2,Trophy} from 'lucide-react';
+import {Bell,ArrowRight,ArrowLeft,Check,ChevronRight,X,Volume2,Mic,Square,Play,RotateCcw,BookOpen,House,MessageCircle,ChartNoAxesCombined,Plane,MapPin,BedDouble,Utensils,TrainFront,ShoppingBag,Sun,Heart,Globe,Sparkles,Bookmark,Headphones,Clock,Flame,CloudCheck,CloudOff,Download,Upload,Settings,Users,CheckCircle2,Search,SlidersHorizontal,Target,HelpCircle,Lock,Trash2,Trophy} from 'lucide-react';
 import {lessons,placement,type Lesson,type Q} from './content';
 import {readEvents,writeEvents,backendName,connectSheets,disconnectSheets,getConnection,isSheets,unlockedPin,rememberPin,forgetPin,sheetsVerifyPin,sheetsSetPin,sheetsHide} from './sync';
 import {computeStats,challengesFrom,addDays,localPinHash,type Stats} from './stats';
